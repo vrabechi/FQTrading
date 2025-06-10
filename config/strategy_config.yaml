@@ -1,0 +1,47 @@
+# Strategy configuration
+strategy:
+  name: "FQ Trading Strategy"
+  version: "1.0.0"
+
+# Trading parameters
+trading:
+  position_size: 0.1  # Percentage of portfolio per trade
+  max_positions: 5    # Maximum number of concurrent positions
+  stop_loss: 0.02     # Stop loss percentage
+  take_profit: 0.05   # Take profit percentage
+
+# Technical indicators
+indicators:
+  sma:
+    short_period: 20
+    long_period: 50
+  rsi:
+    period: 14
+    overbought: 70
+    oversold: 30
+  macd:
+    fast_period: 12
+    slow_period: 26
+    signal_period: 9
+
+# Backtesting parameters
+backtest:
+  start_date: "2020-01-01"
+  end_date: "2023-12-31"
+  initial_capital: 100000
+  commission: 0.001  # 0.1% per trade
+
+# Risk management
+risk:
+  max_drawdown: 0.15  # Maximum allowed drawdown
+  max_daily_loss: 0.02  # Maximum daily loss
+  max_position_risk: 0.01  # Maximum risk per position
+
+# Reporting
+reporting:
+  generate_daily_report: true
+  generate_weekly_report: true
+  generate_monthly_report: true
+  save_trades: true
+  save_positions: true
+  plot_performance: true 
