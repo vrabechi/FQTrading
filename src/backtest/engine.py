@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from typing import Dict, List, Optional
 from datetime import datetime
-from ..core.strategy import FQTradingStrategy
+from src.core.strategy import FQTradingStrategy
 
 class BacktestEngine:
     def __init__(self, strategy: FQTradingStrategy):

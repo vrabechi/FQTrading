@@ -2,10 +2,10 @@ import argparse
 import yaml
 import pandas as pd
 from datetime import datetime, timedelta
-from data.fetcher import DataFetcher
-from core.strategy import FQTradingStrategy
-from backtest.engine import BacktestEngine
-from reports.generators.performance_report import PerformanceReport
+from src.data.fetcher import DataFetcher
+from src.core.strategy import FQTradingStrategy
+from src.backtest.engine import BacktestEngine
+from src.reports.generators.performance_report import PerformanceReport
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Run FQ Trading Strategy')
@@ -17,10 +17,19 @@ def parse_args():
     parser.add_argument('--model-path', help='Path to saved model')
     parser.add_argument('--config-path', default='../config/strategy_config.yaml',
                        help='Path to strategy config')
+    parser.add_argument('--debug', action='store_true',
+                       help='Enable debug mode with detailed logging')
     return parser.parse_args()
 
-def main():
-    args = parse_args()
+def main(args=None):
+    """
+    Main function to run the trading strategy.
+    
+    Args:
+        args: Optional argparse.Namespace object. If None, arguments will be parsed from command line.
+    """
+    if args is None:
+        args = parse_args()
     
     # Load configuration
     with open(args.config_path, 'r') as file:
@@ -48,6 +57,7 @@ def main():
         )
         
         print("Training completed. Model saved.")
+        return history
         
     elif args.mode == 'backtest':
         # Fetch backtest data
@@ -71,11 +81,12 @@ def main():
         report.generate_report()
         
         print("Backtest completed. Report generated.")
+        return results
         
     elif args.mode == 'live':
         # Fetch latest data
         end_date = datetime.now()
-        start_date = end_date - timedelta(days=30)  # Get last 30 days of data
+        start_date = end_date - timedelta(days=30)
         
         data = data_fetcher.fetch_data(
             args.symbol,
@@ -96,6 +107,7 @@ def main():
         print(f"Current positions: {report['current_positions']}")
         print(f"Total trades: {report['total_trades']}")
         print(f"Win rate: {report['win_rate']:.2%}")
+        return report
 
 if __name__ == '__main__':
     main() 

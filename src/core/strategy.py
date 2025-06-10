@@ -3,8 +3,8 @@ import pandas as pd
 import numpy as np
 from typing import Dict, List, Optional
 from datetime import datetime
-from ..models.lstm_model import LSTMModel
-from ..data.processor import DataProcessor
+from src.models.lstm_model import LSTMModel
+from src.data.processor import DataProcessor
 
 class FQTradingStrategy:
     def __init__(self, config_path: str = "../config/strategy_config.yaml",
