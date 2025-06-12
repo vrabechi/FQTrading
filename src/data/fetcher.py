@@ -6,7 +6,7 @@ from typing import Dict, Optional
 from datetime import datetime, timedelta
 
 class DataFetcher:
-    def __init__(self, securities_config_path: str = "../config/securities.yaml"):
+    def __init__(self, securities_config_path: str = "config/securities.yaml"):
         """
         Initialize the data fetcher with securities configuration.
         
@@ -49,11 +49,17 @@ class DataFetcher:
         data_source = security_config['data_source']
         
         if data_source == 'yfinance':
-            return self._fetch_yfinance_data(symbol, start_date, end_date, interval)
+            df = self._fetch_yfinance_data(symbol, start_date, end_date, interval)
         elif data_source == 'ccxt':
-            return self._fetch_ccxt_data(symbol, start_date, end_date, interval)
+            df = self._fetch_ccxt_data(symbol, start_date, end_date, interval)
         else:
             raise ValueError(f"Unsupported data source: {data_source}")
+
+        # Standardize columns to ['open', 'high', 'low', 'close', 'volume']
+        col_map = {c: c.lower() for c in df.columns}
+        df.rename(columns=col_map, inplace=True)
+
+        return df
     
     def _fetch_yfinance_data(self, symbol: str, start_date: Optional[str],
                             end_date: Optional[str], interval: str) -> pd.DataFrame:

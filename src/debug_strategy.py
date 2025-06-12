@@ -10,7 +10,7 @@ def create_args(mode: str, symbol: str, start_date: str = None, end_date: str = 
     args.start_date = start_date
     args.end_date = end_date
     args.model_path = model_path
-    args.config_path = "../config/strategy_config.yaml"
+    args.config_path = "config/strategy_config.yaml"
     args.debug = True  # Always enable debug mode for debugging
     return args
 
@@ -19,7 +19,7 @@ def debug_train():
     symbol = "BTC-USD"
     start_date = "2020-01-01"
     end_date = "2023-12-31"
-    model_path = f"../models/{symbol}_model.h5"
+    model_path = f"models/{symbol}_model.h5"
     
     # Create args object
     args = create_args(
@@ -38,7 +38,7 @@ def debug_backtest():
     symbol = "BTC-USD"
     start_date = "2023-01-01"
     end_date = "2023-12-31"
-    model_path = f"../models/{symbol}_model.h5"
+    model_path = f"models/{symbol}_model.h5"
     
     # Create args object
     args = create_args(
@@ -55,7 +55,7 @@ def debug_backtest():
 def debug_live():
     # Set your parameters here
     symbol = "BTC-USD"
-    model_path = f"../models/{symbol}_model.h5"
+    model_path = f"models/{symbol}_model.h5"
     
     # Create args object
     args = create_args(

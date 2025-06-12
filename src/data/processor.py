@@ -5,13 +5,67 @@ from typing import List, Optional
 from sklearn.preprocessing import StandardScaler
 from boruta import BorutaPy
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.feature_selection import mutual_info_classif
+import yaml
 
 class DataProcessor:
     def __init__(self):
         """Initialize the data processor."""
         self.scaler = StandardScaler()
         self.selected_features = None
+        self.config = self._load_config()
         
+    def _load_config(self) -> dict:
+        """Load configuration from yaml file."""
+        with open('config/strategy_config.yaml', 'r') as file:
+            return yaml.safe_load(file)
+    
+    def _remove_correlated_features(self, data: pd.DataFrame, threshold: float) -> pd.DataFrame:
+        """
+        Remove highly correlated features.
+        
+        Args:
+            data: DataFrame with features
+            threshold: Correlation threshold above which features will be removed
+            
+        Returns:
+            DataFrame with correlated features removed
+        """
+        # Calculate correlation matrix
+        corr_matrix = data.corr().abs()
+        
+        # Get upper triangle of correlation matrix
+        upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
+        
+        # Find features with correlation above threshold
+        to_drop = [column for column in upper.columns if any(upper[column] > threshold)]
+        
+        # Remove correlated features
+        return data.drop(columns=to_drop)
+    
+    def _select_by_mutual_info(self, X: pd.DataFrame, y: pd.Series, threshold: float) -> pd.DataFrame:
+        """
+        Select features based on mutual information with the target.
+        
+        Args:
+            X: DataFrame with features
+            y: Target variable
+            threshold: Minimum mutual information score to keep a feature
+            
+        Returns:
+            DataFrame with only the selected features
+        """
+        # Calculate mutual information scores
+        mi_scores = mutual_info_classif(X, y)
+        
+        # Create a Series with feature names and their scores
+        mi_scores = pd.Series(mi_scores, index=X.columns)
+        
+        # Select features above threshold
+        selected_features = mi_scores[mi_scores >= threshold].index
+        
+        return X[selected_features]
+    
     def add_technical_indicators(self, data: pd.DataFrame) -> pd.DataFrame:
         """
         Add technical indicators to the data.
@@ -27,35 +81,13 @@ class DataProcessor:
         if not all(col in data.columns for col in required_columns):
             raise ValueError("Data must contain OHLCV columns")
         
-        # Add RSI
-        data['rsi'] = ta.rsi(data['close'])
+        df = data.copy()
+
+        # Add all factors
+        df.ta.strategy('All')
+        df = df.bfill(axis=1)
         
-        # Add MACD
-        macd = ta.macd(data['close'])
-        data = pd.concat([data, macd], axis=1)
-        
-        # Add Bollinger Bands
-        bbands = ta.bbands(data['close'])
-        data = pd.concat([data, bbands], axis=1)
-        
-        # Add Stochastic Oscillator
-        stoch = ta.stoch(data['high'], data['low'], data['close'])
-        data = pd.concat([data, stoch], axis=1)
-        
-        # Add ATR
-        data['atr'] = ta.atr(data['high'], data['low'], data['close'])
-        
-        # Add price momentum
-        data['momentum'] = data['close'].pct_change(periods=5)
-        
-        # Add volume indicators
-        data['volume_ma'] = data['volume'].rolling(window=20).mean()
-        data['volume_std'] = data['volume'].rolling(window=20).std()
-        
-        # Add price volatility
-        data['volatility'] = data['close'].rolling(window=20).std()
-        
-        return data
+        return df
     
     def create_target(self, data: pd.DataFrame, 
                      forward_period: int = 1) -> pd.DataFrame:
@@ -79,14 +111,14 @@ class DataProcessor:
     
     def select_features(self, data: pd.DataFrame, 
                        target_col: str = 'target',
-                       max_iter: int = 100) -> List[str]:
+                       max_iter: int = None) -> List[str]:
         """
-        Select important features using Boruta algorithm.
+        Select important features using correlation analysis, mutual information, and Boruta algorithm.
         
         Args:
             data: DataFrame with features and target
             target_col: Name of the target column
-            max_iter: Maximum number of iterations for Boruta
+            max_iter: Maximum number of iterations for Boruta (overrides config if provided)
             
         Returns:
             List of selected feature names
@@ -95,9 +127,21 @@ class DataProcessor:
         X = data.drop(target_col, axis=1)
         y = data[target_col]
         
-        # Initialize Boruta
+        # Step 1: Remove correlated features
+        correlation_threshold = self.config['feature_selection']['correlation_threshold']
+        X = self._remove_correlated_features(X, correlation_threshold)
+        
+        # Step 2: Select features based on mutual information
+        mutual_info_threshold = self.config['feature_selection']['mutual_info_threshold']
+        X = self._select_by_mutual_info(X, y, mutual_info_threshold)
+        
+        # Step 3: Apply Boruta algorithm
         rf = RandomForestClassifier(n_jobs=-1, class_weight='balanced', max_depth=5)
-        boruta = BorutaPy(rf, n_estimators='auto', verbose=2, random_state=42)
+        boruta = BorutaPy(rf, 
+                         n_estimators='auto', 
+                         verbose=2, 
+                         random_state=42,
+                         max_iter=max_iter or self.config['feature_selection']['boruta_max_iter'])
         
         # Fit Boruta
         boruta.fit(X.values, y.values)

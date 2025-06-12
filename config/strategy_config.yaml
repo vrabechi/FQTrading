@@ -10,6 +10,12 @@ trading:
   stop_loss: 0.02     # Stop loss percentage
   take_profit: 0.05   # Take profit percentage
 
+# Feature selection
+feature_selection:
+  correlation_threshold: 0.85  # Maximum allowed correlation between features
+  mutual_info_threshold: 0.01  # Minimum mutual information score to keep a feature
+  boruta_max_iter: 100        # Maximum iterations for Boruta algorithm
+
 # Technical indicators
 indicators:
   sma:

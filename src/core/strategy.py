@@ -7,7 +7,7 @@ from src.models.lstm_model import LSTMModel
 from src.data.processor import DataProcessor
 
 class FQTradingStrategy:
-    def __init__(self, config_path: str = "../config/strategy_config.yaml",
+    def __init__(self, config_path: str = "config/strategy_config.yaml",
                  model_path: Optional[str] = None):
         """
         Initialize the trading strategy with configuration.

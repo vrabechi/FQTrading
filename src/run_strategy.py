@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from src.data.fetcher import DataFetcher
 from src.core.strategy import FQTradingStrategy
 from src.backtest.engine import BacktestEngine
-from src.reports.generators.performance_report import PerformanceReport
+from reports.generators.performance_report import PerformanceReport
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Run FQ Trading Strategy')
@@ -15,7 +15,7 @@ def parse_args():
     parser.add_argument('--start-date', help='Start date (YYYY-MM-DD)')
     parser.add_argument('--end-date', help='End date (YYYY-MM-DD)')
     parser.add_argument('--model-path', help='Path to saved model')
-    parser.add_argument('--config-path', default='../config/strategy_config.yaml',
+    parser.add_argument('--config-path', default='config/strategy_config.yaml',
                        help='Path to strategy config')
     parser.add_argument('--debug', action='store_true',
                        help='Enable debug mode with detailed logging')
@@ -53,7 +53,7 @@ def main(args=None):
         # Train model
         history = strategy.train(
             data,
-            model_save_path=f'../models/{args.symbol}_model.h5'
+            model_save_path=f'src/models/{args.symbol}_model.h5'
         )
         
         print("Training completed. Model saved.")

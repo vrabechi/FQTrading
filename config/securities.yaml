@@ -7,7 +7,7 @@ securities:
     base_currency: USD
     min_trade_size: 0.001
     max_trade_size: 1.0
-    data_source: ccxt
+    data_source: yfinance
 
   # Stocks
   AAPL:

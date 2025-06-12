@@ -6,7 +6,7 @@ from datetime import datetime
 import os
 
 class PerformanceReport:
-    def __init__(self, results: Dict, output_dir: str = "../reports"):
+    def __init__(self, results: Dict, output_dir: str = "reports"):
         """
         Initialize the performance report generator.
         
