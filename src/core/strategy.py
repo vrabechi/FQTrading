@@ -40,8 +40,7 @@ class FQTradingStrategy:
         Returns:
             Dictionary with training history
         """
-        # Process data
-        data = self.data_processor.add_technical_indicators(data)
+        # Create target variable
         data = self.data_processor.create_target(data)
         
         # Select features

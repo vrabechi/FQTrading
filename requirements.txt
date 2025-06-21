@@ -17,4 +17,5 @@ pytest==7.4.0
 boruta==0.3
 optuna==3.5.0
 sweetviz==2.3.1
-pyfolio @ git+https://github.com/stefan-jansen/pyfolio.git
+TA-Lib==0.4.28         # Technical Analysis Library
+# pyfolio @ git+https://github.com/stefan-jansen/pyfolio.git

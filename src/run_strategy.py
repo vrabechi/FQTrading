@@ -50,6 +50,8 @@ def main(args=None):
             end_date=args.end_date
         )
         
+        data = data.add_technical_indicators()
+        
         # Train model
         history = strategy.train(
             data,
